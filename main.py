@@ -7,6 +7,8 @@ import os
 from google.cloud import speech
 from google.cloud import texttospeech
 
+from google.cloud import language_v2
+
 app = Flask(__name__)
 
 # Configure upload folder
@@ -16,6 +18,33 @@ ALLOWED_EXTENSIONS = {'wav'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(TTS_FOLDER, exist_ok=True)
+
+# --- MODIFICATION START --- (Sentiment Analysis Function)
+def analyze_sentiment(text_content):
+    """Runs sentiment analysis on given text and returns results."""
+    client = language_v2.LanguageServiceClient()
+    document = {
+        "content": text_content,
+        "type_": language_v2.Document.Type.PLAIN_TEXT,
+        "language_code": "en",
+    }
+    response = client.analyze_sentiment(request={"document": document, "encoding_type": language_v2.EncodingType.UTF8})
+
+    sentiment_score = response.document_sentiment.score
+    sentiment_magnitude = response.document_sentiment.magnitude
+
+    # Interpret sentiment score
+    if sentiment_score > 0.25:
+        sentiment_label = "Positive"
+    elif sentiment_score < -0.25:
+        sentiment_label = "Negative"
+    else:
+        sentiment_label = "Neutral"
+
+    sentiment_result = f"Sentiment: {sentiment_label}\nScore: {sentiment_score}\nMagnitude: {sentiment_magnitude}\n"
+    return sentiment_result
+# --- MODIFICATION END ---
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -89,9 +118,17 @@ def upload_audio():
 
         # Save the transcript as a text file with the same name as the audio file
         transcript_filename = file_path.replace('.wav', '.txt')
+        # --- MODIFICATION START --- (Analyze Sentiment & Save Results)
+        sentiment_result = analyze_sentiment(transcript)
+        # Save transcript with sentiment
         with open(transcript_filename, 'w') as transcript_file:
-            transcript_file.write(transcript)
-        print(f"Transcript saved at: {transcript_filename}")
+            transcript_file.write(transcript + "\n\n" + sentiment_result)
+        # --- MODIFICATION END ---        # --- MODIFICATION START --- (Analyze Sentiment & Save Results)
+        sentiment_result = analyze_sentiment(transcript)
+        # Save transcript with sentiment
+        with open(transcript_filename, 'w') as transcript_file:
+            transcript_file.write(transcript + "\n\n" + sentiment_result)
+        # --- MODIFICATION END ---
         # ------------------ END MODIFICATION FOR SPEECH-TO-TEXT ----------------------
 
     return redirect('/')  # Redirect to the homepage
@@ -115,7 +152,9 @@ def upload_text():
     # ------------------ MODIFICATION FOR TEXT-TO-SPEECH ----------------------
     # Use Google Cloud Text-to-Speech API to convert the input text to speech
     client = texttospeech.TextToSpeechClient()
-
+    # --- MODIFICATION START --- (Analyze Sentiment)
+    sentiment_result = analyze_sentiment(text)
+    # --- MODIFICATION END ---
     # Prepare the input text for synthesis
     synthesis_input = texttospeech.SynthesisInput(text=text)
 
@@ -145,10 +184,11 @@ def upload_text():
     print(f"TTS Audio saved at: {tts_file_path}")
 
     # Save the input text as a .txt file in the TTS folder
+    # --- MODIFICATION START --- (Save Sentiment Result)
     tts_text_path = os.path.join(TTS_FOLDER, tts_filename + '.txt')
     with open(tts_text_path, "w") as text_file:
-        text_file.write(text)
-    print(f"TTS Text saved at: {tts_text_path}")
+        text_file.write(text + "\n\n" + sentiment_result)
+    # --- MODIFICATION END ---
 
 
 
