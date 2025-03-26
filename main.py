@@ -111,29 +111,13 @@ def upload_audio():
 
     return redirect('/')  
 
-@app.route('/upload/<filename>')
-def get_file(filename):
-    return send_file(filename)
-
-
-@app.route('/script.js', methods=['GET'])
+@app.route('/script.js',methods=['GET'])
 def scripts_js():
     return send_file('./script.js')
 
-# Route to serve both uploaded audio (.wav) and transcription (.txt) files
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    # Serve the file based on its extension
-    if filename.endswith('.txt'):
-        # Serve transcription files (.txt)
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-    elif filename.endswith('.wav'):
-        # Serve audio files (.wav)
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-    else:
-        return "File type not supported", 404
-
-
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
