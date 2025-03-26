@@ -34,7 +34,7 @@
                     {% endfor %}
                 </ul>
             </td>
-            <td style="width:50%">
+<!--            <td style="width:50%">
                 <h2>Type in your text to generate audio</h2>
 
                 <form action="/upload_text" method="post">
@@ -52,12 +52,12 @@
                         </audio><br>
                         {{file}}
                 
-                        <!-- Link to the transcription file for TTS audio -->
+                        
                         <a href="{{ url_for('tts_file', filename=file.rsplit('.', 1)[0] + '.wav' + '.txt') }}">{{file.rsplit('.', 1)[0]}}.txt</a>
                     </li>
                     {% endfor %}
                 </ul>                                              
-            </td>
+            </td> -->
         </tr>
     </table>
 </body>
