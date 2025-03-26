@@ -29,7 +29,7 @@
                         </audio><br>
                         {{file}}
                         <!-- Updated link for transcription -->
-                        <a href="{{ url_for('uploaded_file', filename=file.rsplit('.', 1)[0] + '.txt') }}">{{file}}.txt</a>
+                        <a href="uploads/{{file}}.txt">{{file}}.txt</a>
                     </li>
                     {% endfor %}
                 </ul>
