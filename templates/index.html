@@ -1,64 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audio Recorder</title>
+    <title>Book Q&A App</title>
 </head>
 <body>
 
-    <table style="width:100%">
-        <tr>
-            <td style="width:50%">
-                <h2>Record and Upload Audio</h2>
+<table style="width:100%">
+    <tr>
+        <!-- AUDIO INTERACTION SECTION -->
+        <td style="width:50%; vertical-align: top;">
+            <h2>Ask a Question About the Uploaded Book</h2>
 
-                <button id="record">Record</button>
-                <button id="stop">Stop</button>
-                <span id="timer">00:00</span>
-                <audio id="audio"></audio>
-                <form id="uploadForm" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="audio_data" id="audioData">
-                </form>
-                <script src="script.js"></script>
-                <hl></hl>
-                <h2>Recorded Files</h2>
-                <ul>
-                    {% for file in files %}
-                    <li> 
-                        <audio controls>
-                            <source src="{{ url_for('uploaded_file', filename=file) }}">
-                            Your browser does not support the audio element.
-                        </audio><br>
-                        {{file}}
-                        <!-- Updated link for transcription -->
-                        <a href="uploads/{{file}}.txt">{{file}}.txt</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </td>
-<!--            <td style="width:50%">
-                <h2>Type in your text to generate audio</h2>
+            <p><strong>Step 1:</strong> Upload a book (PDF) below.</p>
+            <form action="/upload_book" method="post" enctype="multipart/form-data">
+                <input type="file" name="book_pdf" accept=".pdf" required>
+                <input type="submit" value="Upload Book">
+            </form>
 
-                <form action="/upload_text" method="post">
-                  <textarea name="text" rows="10" cols="50"></textarea>
-                  <br>
-                  <input type="submit" value="Upload">
-                </form>
-                <h2>Generated Audio from Text</h2>
-                <ul>
-                    {% for file in tts_files %}
-                    <li>
-                        <audio controls>
-                            <source src="{{ url_for('tts_file', filename=file) }}">
-                            Your browser does not support the audio element.
-                        </audio><br>
-                        {{file}}
+            {% if book %}
+                <p> <strong>Currently Loaded Book:</strong> {{ book }}</p>
+            {% else %}
+                <p>No book uploaded yet.</p>
+            {% endif %}
+
+            <hr>
+
+            <p><strong>Step 2:</strong> Record your question below.</p>
+            <button id="record">Record</button>
+            <button id="stop">Stop</button>
+            <span id="timer">00:00</span>
+            <audio id="audio"></audio>
+
+            <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="audio_data" id="audioData">
+            </form>
+
+            <hr>
+        
+            <p><strong>Step 3:
                 
-                        
-                        <a href="{{ url_for('tts_file', filename=file.rsplit('.', 1)[0] + '.wav' + '.txt') }}">{{file.rsplit('.', 1)[0]}}.txt</a>
-                    </li>
-                    {% endfor %}
-                </ul>                                              
-            </td> -->
-        </tr>
-    </table>
+            
+            
+                <h3>LLM Response:</h3>
+                <p>{{ llm_response }}</p>
+                <audio controls>
+                    <source src="./audio/response.wav">
+                    Your browser does not support the audio element.
+                </audio><br>
+            
+
+            <!-- Display response.txt content if it exists -->
+            
+                <p>Response from File:</p>
+                <pre>{{ response_text }}</pre>
+            
+        </td>
+    </tr>
+</table>
+
+<!-- Script must be loaded at the end -->
+<script src="script.js"></script>
+
 </body>
 </html>
